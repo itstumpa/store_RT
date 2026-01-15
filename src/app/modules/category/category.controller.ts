@@ -1,51 +1,110 @@
-import { Request, Response } from "express";
-import { categoryService } from "./categoryServices";
+// src/modules/category/category.controller.ts
 
-export const categoryController = {
-  async create(req: Request, res: Response) {
-    try {
-      console.log("BODY:", req.body);
-      const result = await categoryService.createCategory(req.body);
-      res.status(201).json({ success: true, data: result });
-    } catch (error: any) {
-      console.error("CREATE CATEGORY ERROR:", error);
-      res.status(400).json({ success: false, message: error.message });
-    }
-  },
+import { Request, Response } from 'express';
+import * as categoryService from './category.service';
+import { catchAsync, sendResponse } from '../../shared';
+import { CreateCategoryInput, UpdateCategoryInput } from './category.types';
 
-  async getAll(req: Request, res: Response) {
-    try {
-      const result = await categoryService.getAllCategories();
-      res.status(200).json({ success: true, data: result });
-    } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
-    }
-  },
+// CREATE
+export const createCategory = catchAsync(async (req: Request, res: Response) => {
+  const category = await categoryService.createCategory(req.body as CreateCategoryInput);
+  
+  sendResponse(res, {
+    statusCode: 201,
+    success: true,
+    message: 'Category created successfully',
+    data: category,
+  });
+});
 
-  async getOne(req: Request, res: Response) {
-    try {
-      const result = await categoryService.getSingleCategory(req.params.id as string);
-      res.status(200).json({ success: true, data: result });
-    } catch (error: any) {
-      res.status(404).json({ success: false, message: error.message });
-    }
-  },
+// GET ALL
+export const getAllCategories = catchAsync(async (req: Request, res: Response) => {
+  const { search, isActive, parentId, page, limit } = req.query;
+  
+  const result = await categoryService.getAllCategories({
+    search: search as string,
+    isActive: isActive === 'true' ? true : isActive === 'false' ? false : undefined,
+    parentId: parentId as string,
+    page: page ? Number(page) : 1,
+    limit: limit ? Number(limit) : 10,
+  });
+  
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Categories fetched successfully',
+    data: result.categories,
+    meta: {
+      page: result.page,
+      limit: result.limit,
+      total: result.total,
+    },
+  });
+});
 
-  async update(req: Request, res: Response) {
-    try {
-      const result = await categoryService.updateCategory(req.params.id as string, req.body);
-    res.status(200).json({ success: true, data: result });
-    } catch (error: any) {
-      res.status(400).json({ success: false, message: error.message });
-    }
-  },
+// GET BY ID
+export const getCategoryById = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const category = await categoryService.getCategoryById(id);
+  
+  if (!category) {
+    return sendResponse(res, {
+      statusCode: 404,
+      success: false,
+      message: 'Category not found',
+    });
+  }
+  
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Category fetched successfully',
+    data: category,
+  });
+});
 
-  async delete(req: Request, res: Response) {
-    try {
-      await categoryService.deleteCategory(req.params.id as string);
-      res.status(200).json({ success: true, message: "Category deleted" });
-    } catch (error: any) {
-      res.status(400).json({ success: false, message: error.message });
-    }
-  },
-};
+// GET BY SLUG
+export const getCategoryBySlug = catchAsync(async (req: Request, res: Response) => {
+  const { slug } = req.params;
+  const category = await categoryService.getCategoryBySlug(slug);
+  
+  if (!category) {
+    return sendResponse(res, {
+      statusCode: 404,
+      success: false,
+      message: 'Category not found',
+    });
+  }
+  
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Category fetched successfully',
+    data: category,
+  });
+});
+
+// UPDATE
+export const updateCategory = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const category = await categoryService.updateCategory(id, req.body as UpdateCategoryInput);
+  
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Category updated successfully',
+    data: category,
+  });
+});
+
+// DELETE
+export const deleteCategory = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  await categoryService.deleteCategory(id);
+  
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Category deleted successfully',
+  });
+});

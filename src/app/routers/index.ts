@@ -2,7 +2,7 @@
 import { Router } from "express";
 import { UserRoutes } from "../modules/user/user.routes";
 import brandRoutes from "../modules/brand/brand.routes";
-// import categoryRoutes from "../modules/category/category.routes";
+import categoryRoutes from "../modules/category/category.route";
 // import productRoutes from "../modules/product/product.routes";
 // import orderRoutes from "../modules/order/order.routes";
 
@@ -17,10 +17,10 @@ const moduleRouters = [
     path: "/brands",
     route: brandRoutes,
   },
-  // {
-  //   path: "/categories",
-  //   route: categoryRoutes,
-  // },
+  {
+    path: "/categories",
+    route: categoryRoutes,
+  },
   // {
   //   path: "/products",
   //   route: productRoutes,
