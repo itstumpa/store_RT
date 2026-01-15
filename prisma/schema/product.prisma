@@ -20,7 +20,7 @@ model Product {
   weight          Float?   // in grams
   dimensions      String?  // "20x15x2 cm"
   material        String?
-
+inventory     InventoryLog[]
   categoryId    String
   category      Category @relation(fields: [categoryId], references: [id])
 
@@ -28,7 +28,7 @@ model Product {
   deletedAt      DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-brandId     String?
+// brandId     String?
 isFeatured Boolean          @default(false)
 
 
@@ -37,7 +37,7 @@ isFeatured Boolean          @default(false)
   variants      ProductVariant[]
   order         OrderItem[]
   
-  brand         Brand @relation(fields: [brandId], references: [id])
+  brand         Brand[]
   
 
   @@index([status])
