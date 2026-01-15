@@ -12,12 +12,8 @@ const generateOrderNumber = (): string => {
 
 // CREATE
 export const createOrder = async (data: CreateOrderInput) => {
-  if (!data.items || data.items.length === 0) {
-    throw new Error("Order must contain at least one item");
-  }
-
   const orderNumber = generateOrderNumber();
-
+  
   const order = await prisma.order.create({
     data: {
       orderNumber,
@@ -26,12 +22,6 @@ export const createOrder = async (data: CreateOrderInput) => {
       customerPhone: data.customerPhone,
       shippingAddress: data.shippingAddress,
       totalAmount: data.totalAmount,
-      discountAmount: data.discountAmount || 0,
-      shippingAmount: data.shippingAmount || 0,
-      finalAmount: data.finalAmount,
-      paymentMethod: data.paymentMethod,
-      paymentStatus: data.paymentStatus || "PENDING",
-      notes: data.notes,
       orderitems: {
         create: data.items.map(item => ({
           productId: item.productId,
@@ -43,14 +33,15 @@ export const createOrder = async (data: CreateOrderInput) => {
     },
     include: {
       orderitems: {
-        include: { product: true },
+        include: {
+          product: true,
+        },
       },
     },
   });
-
+  
   return order;
 };
-
 
 // GET ALL
 export const getAllOrders = async (filters: OrderFilters) => {
