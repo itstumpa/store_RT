@@ -8,6 +8,7 @@ async function bootstrap() {
     // Start the server
     server = app.listen(config.port, () => {
       console.log(`🚀 Server is running on http://localhost:${config.port}`);
+      //         ^ Parenthesis here, backticks for template string
     });
 
     // Function to gracefully shut down the server
@@ -15,6 +16,7 @@ async function bootstrap() {
       if (server) {
         server.close(() => {
           console.log(`Server closed gracefully.`);
+          //         ^ Fixed here too
           process.exit(1);
         });
       } else {

@@ -5,3 +5,230 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(USER)
+
+  orders Order[]
+
+  isDeleted      Boolean  @default(false)
+  deletedAt      DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id        String     @id @default(uuid())
+  name      String
+  slug      String     @unique
+  parentId  String?
+  parent    Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children  Category[] @relation("CategoryTree")
+
+  isDeleted      Boolean  @default(false)
+  deletedAt      DateTime?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  products  Product[]
+}
+
+
+model Product {
+  id            String   @id @default(uuid())
+  name          String
+  slug          String   @unique
+  basePrice     Float?
+  salePrice     Float?
+  isActive      Boolean  @default(true)
+  description   String?
+
+  isbn            String?  @unique
+  author          String
+  publisher       String?
+  edition         String?
+  publicationYear Int?
+  pages           Int?
+  language        String   @default("English")
+  status          ProductStatus @default(ACTIVE)
+  isRecommended   Boolean  @default(false)
+  isLatestEdition Boolean  @default(false)
+  weight          Float?   // in grams
+  dimensions      String?  // "20x15x2 cm"
+  material        String?
+
+  categoryId    String
+  category      Category @relation(fields: [categoryId], references: [id])
+
+  isDeleted      Boolean  @default(false)
+  deletedAt      DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  images        ProductImage[]
+  variants      ProductVariant[]
+  order         OrderItem[]
+  inventory     InventoryLog[]
+  
+
+  @@index([status])
+  @@map("product_store")
+}
+
+model ProductVariant {
+  id        String   @id @default(uuid())
+  sku       String   @unique
+  price     Float
+  stock     Int?
+  isDefault Boolean  @default(false)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  attributes VariantAttribute[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Attribute {
+  id     String @id @default(uuid())
+  name   String @unique
+
+  values AttributeValue[]
+}
+
+model AttributeValue {
+  id          String @id @default(uuid())
+  value       String
+  attributeId String
+  attribute   Attribute  @relation(fields: [attributeId], references: [id])
+
+  variantAttributes VariantAttribute[]
+  @@unique([attributeId, value])
+}
+
+
+model VariantAttribute {
+  id               String @id @default(uuid())
+  productVariantId String
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
+  attributeValueId String
+  attributeValue   AttributeValue @relation(fields: [attributeValueId], references: [id])
+}
+
+model Order {
+  id        String   @id @default(uuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  orderNumber     String   @unique
+  customerName    String
+  customerEmail   String
+  customerPhone   String
+  shippingAddress String
+  totalAmount     Float
+  discountAmount  Float    @default(0)
+  shippingAmount  Float    @default(0)
+  finalAmount     Float
+  status          OrderStatus @default(PENDING)
+  trackingNumber  String?
+  notes           String?
+  invoiceUrl      String?
+  total     Float
+  order        OrderItem[]
+
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OrderItem {
+  id          String   @id @default(uuid())
+  quantity    Int
+  unitPrice   Float
+  totalPrice  Float
+  
+  // Relations
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId      String
+  product        Product @relation(fields: [productId], references: [id])
+  createdAt   DateTime @default(now())
+  
+  @@unique([orderId, productId])
+  @@map("order_items")
+}
+
+model ProductImage {
+  id        String   @id @default(uuid())
+  url       String
+  isMain    Boolean  @default(false)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+
+model InventoryLog {
+  id          String   @id @default(uuid())
+  
+  type        InventoryLogType
+  quantity    Int      // Positive for addition, negative for reduction
+  previousStock Int
+  newStock    Int
+  reason      String?
+  reference   String?  // Order number, adjustment reference, etc.
+  
+  // Relations
+  productId      String
+  product        Product @relation(fields: [productId], references: [id])
+  
+  createdAt   DateTime @default(now())
+  isDeleted      Boolean  @default(false)
+  deletedAt      DateTime?
+  
+  @@index([productId])
+  @@index([type])
+  @@map("inventory_logs")
+}
+
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+  OUT_OF_STOCK
+  DISCONTINUED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum InventoryLogType {
+  PURCHASE
+  SALE
+  ADJUSTMENT
+  RETURN
+  DAMAGE
+  TRANSFER
+}
+
+enum Role {
+  USER
+  ADMIN
+  VENDOR
+  
+}
