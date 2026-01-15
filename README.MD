@@ -1,8 +1,7 @@
 
 
-## To generate schema.prisma file
-npm run prisma:generate-schema
 
+```
 
 ┌─────────────────────────────────────────────────────────────────┐
 │                     API ENDPOINTS                               │
@@ -41,3 +40,5 @@ npm run prisma:generate-schema
 │  DELETE /api/orders/:id              Delete order               │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
+
+```
