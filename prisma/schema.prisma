@@ -172,7 +172,7 @@ inventory     InventoryLog[]
   deletedAt      DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-// brandId     String?
+brandId     String?
 isFeatured Boolean          @default(false)
 
 
@@ -181,7 +181,7 @@ isFeatured Boolean          @default(false)
   variants      ProductVariant[]
   order         OrderItem[]
   
-  brand         Brand[]
+  brand         Brand? @relation(fields: [brandId], references: [id])
   
 
   @@index([status])

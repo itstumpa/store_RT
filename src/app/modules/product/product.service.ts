@@ -1,132 +1,128 @@
-import makeSlug from "../../../utils/helper";
-import { prisma } from "../../../utils/prisma";
-import { CreateProductInput } from "./product.types";
+// src/modules/product/product.service.ts
 
-export async function createProduct(data: CreateProductInput) {
-  const productSlug = makeSlug(data.name);
+import { prisma } from '../../shared/prisma';
+import { CreateProductInput, UpdateProductInput, ProductFilters } from './product.types';
 
-  return prisma.$transaction(async (tx) => {
-    return tx.product.create({
-      data: {
-        name: data.name,
-        slug: productSlug,
-        basePrice: data.basePrice,
-        salePrice: data.salePrice,
-        description: data.description,
-        ingredients: data.ingredients,
-        nutritionInfo: data.nutritionInfo,
-        brand: data.brand,
-        expiryDays: data.expiryDays,
-        categoryId: data.categoryId,
+const generateSlug = (title: string): string => {
+  return title
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+};
 
-        images: {
-          create: data.images?.map((img) => ({
-            url: img.url,
-            isMain: img.isMain ?? false,
-          })),
-        },
-
-        variants: {
-          create: await Promise.all(
-            data.variants.map(async (variant) => ({
-              sku: variant.sku,
-              price: variant.price,
-              stock: variant.stock,
-              isDefault: variant.isDefault ?? false,
-
-              attributes: {
-                create: await Promise.all(
-                  variant.attributes.map(async (attr) => {
-                    const attribute = await tx.attribute.upsert({
-                      where: { name: attr.attribute },
-                      update: {},
-                      create: { name: attr.attribute },
-                    });
-
-                    const attributeValue = await tx.attributeValue.upsert({
-                      where: {
-                        attributeId_value: {
-                          attributeId: attribute.id,
-                          value: attr.value,
-                        },
-                      },
-                      update: {},
-                      create: {
-                        attributeId: attribute.id,
-                        value: attr.value,
-                      },
-                    });
-
-                    return {
-                      attributeValueId: attributeValue.id,
-                    };
-                  })
-                ),
-              },
-            }))
-          ),
-        },
-      },
-
-      include: {
-        images: true,
-        variants: {
-          include: {
-            attributes: {
-              include: {
-                attributeValue: {
-                  include: {
-                    attribute: true,
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
-  });
-}
-
-export async function getAllProducts() {
-  return prisma.product.findMany({
+// CREATE
+export const createProduct = async (data: CreateProductInput) => {
+  const slug = data.slug || generateSlug(data.title);
+  
+  return await prisma.product.create({
+    data: {
+      ...data,
+      slug,
+    },
     include: {
-      images: true,
-      // variants: {
-      //   include: {
-      //     attributes: {
-      //       include: {
-      //         attributeValue: {
-      //           include: {
-      //             attribute: true,
-      //           },
-      //         },
-      //       },
-      //     },
-      //   },
-      // },
+      brand: true,
+      category: true,
     },
   });
-}
+};
 
-export const getProductsBySlug = (slug: string) => {
-  return prisma.product.findUnique({
+// GET ALL
+export const getAllProducts = async (filters: ProductFilters) => {
+  const {
+    search,
+    brandId,
+    categoryId,
+    minPrice,
+    maxPrice,
+    isActive,
+    page = 1,
+    limit = 10,
+    sortBy = 'createdAt',
+    sortOrder = 'desc',
+  } = filters;
+  
+  const skip = (page - 1) * limit;
+
+  const where: any = {};
+  
+  if (search) {
+    where.OR = [
+      { title: { contains: search, mode: 'insensitive' } },
+      { description: { contains: search, mode: 'insensitive' } },
+      { sku: { contains: search, mode: 'insensitive' } },
+    ];
+  }
+  
+  if (brandId) where.brandId = brandId;
+  if (categoryId) where.categoryId = categoryId;
+  if (isActive !== undefined) where.isActive = isActive;
+  
+  if (minPrice || maxPrice) {
+    where.price = {};
+    if (minPrice) where.price.gte = minPrice;
+    if (maxPrice) where.price.lte = maxPrice;
+  }
+
+  const [products, total] = await Promise.all([
+    prisma.product.findMany({
+      where,
+      skip,
+      take: limit,
+      orderBy: { [sortBy]: sortOrder },
+      include: {
+        brand: true,
+        category: true,
+      },
+    }),
+    prisma.product.count({ where }),
+  ]);
+
+  return { products, total, page, limit };
+};
+
+// GET BY ID
+export const getProductById = async (id: string) => {
+  return await prisma.product.findUnique({
+    where: { id },
+    include: {
+      brand: true,
+      category: true,
+    },
+  });
+};
+
+// GET BY SLUG
+export const getProductBySlug = async (slug: string) => {
+  return await prisma.product.findUnique({
     where: { slug },
     include: {
-      images: true,
-      variants: {
-        include: {
-          attributes: {
-            include: {
-              attributeValue: {
-                include: {
-                  attribute: true,
-                },
-              },
-            },
-          },
-        },
-      },
+      brand: true,
+      category: true,
     },
+  });
+};
+
+// UPDATE
+export const updateProduct = async (id: string, data: UpdateProductInput) => {
+  if (data.title && !data.slug) {
+    data.slug = generateSlug(data.title);
+  }
+  
+  return await prisma.product.update({
+    where: { id },
+    data,
+    include: {
+      brand: true,
+      category: true,
+    },
+  });
+};
+
+// DELETE
+export const deleteProduct = async (id: string) => {
+  return await prisma.product.delete({
+    where: { id },
   });
 };
