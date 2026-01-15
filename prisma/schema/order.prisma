@@ -15,8 +15,11 @@ model Order {
   trackingNumber  String?
   notes           String?
   invoiceUrl      String?
-  total     Float
-  order        OrderItem[]
+  paymentMethod String?
+paymentStatus PaymentStatus @default(PENDING)
+payments Payment[]
+
+  orderitems        OrderItem[]
 
 
   createdAt DateTime @default(now())
@@ -37,6 +40,6 @@ model OrderItem {
   createdAt   DateTime @default(now())
   
   @@unique([orderId, productId])
-  @@map("order_items")
+  @@map("order_item")
 }
 

@@ -24,6 +24,24 @@ enum OrderStatus {
   REFUNDED
 }
 
+enum PaymentStatus {
+  PENDING     // Order created, payment not initiated
+  INITIATED   // Redirected to payment gateway
+  PAID        // Payment successful
+  FAILED      // Payment failed
+  CANCELLED   // User cancelled payment
+  REFUNDED    // Payment refunded
+}
+
+enum PaymentMethod {
+  CASH_ON_DELIVERY
+  SSLCOMMERZ
+  BKASH
+  NAGAD
+  STRIPE
+}
+
+
 enum InventoryLogType {
   PURCHASE
   SALE
@@ -115,8 +133,13 @@ model Order {
   trackingNumber  String?
   notes           String?
   invoiceUrl      String?
-  total     Float
-  order        OrderItem[]
+  paymentMethod String?
+paymentStatus PaymentStatus @default(PENDING)
+payments Payment[]
+
+
+
+  orderitems        OrderItem[]
 
 
   createdAt DateTime @default(now())
@@ -140,6 +163,33 @@ model OrderItem {
   @@map("order_items")
 }
 
+
+
+
+
+model Payment {
+  id              String        @id @default(uuid())
+
+  orderId         String
+  order           Order         @relation(fields: [orderId], references: [id])
+
+  paymentMethod   PaymentMethod
+  paymentStatus   PaymentStatus @default(PENDING)
+
+  amount          Float
+  currency        String        @default("BDT")
+
+  transactionId   String?       @unique   // Gateway transaction ID
+  gatewayResponse Json?
+
+  paidAt          DateTime?
+  refundedAt      DateTime?
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([orderId])
+}
 
 
 model Product {
