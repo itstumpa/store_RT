@@ -14,6 +14,16 @@ const generateOrderNumber = (): string => {
 export const createOrder = async (data: CreateOrderInput) => {
   const orderNumber = generateOrderNumber();
   
+  // Calculate final amount
+  const finalAmount = data.totalAmount + (data.shippingAmount || 0) - (data.discountAmount || 0);
+  
+  // Handle both 'items' and 'orderitems' for flexibility
+  const orderItems = data.items || data.orderitems;
+  
+  if (!orderItems || orderItems.length === 0) {
+    throw new Error('Order must have at least one item');
+  }
+  
   const order = await prisma.order.create({
     data: {
       orderNumber,
@@ -22,12 +32,22 @@ export const createOrder = async (data: CreateOrderInput) => {
       customerPhone: data.customerPhone,
       shippingAddress: data.shippingAddress,
       totalAmount: data.totalAmount,
+      discountAmount: data.discountAmount || 0,
+      shippingAmount: data.shippingAmount || 0,
+      finalAmount: finalAmount,
+      status: data.status,
+      paymentMethod: data.paymentMethod,
+      paymentStatus: data.paymentStatus,
+      trackingNumber: data.trackingNumber,
+      notes: data.notes,
+      invoiceUrl: data.invoiceUrl,
+      userId: data.userId,
       orderitems: {
-        create: data.items.map(item => ({
+        create: orderItems.map(item => ({
           productId: item.productId,
           quantity: item.quantity,
           unitPrice: item.unitPrice,
-          totalPrice: item.quantity * item.unitPrice,
+          totalPrice: item.totalPrice || (item.quantity * item.unitPrice),
         })),
       },
     },
@@ -37,6 +57,7 @@ export const createOrder = async (data: CreateOrderInput) => {
           product: true,
         },
       },
+      user: true,
     },
   });
   
@@ -45,12 +66,24 @@ export const createOrder = async (data: CreateOrderInput) => {
 
 // GET ALL
 export const getAllOrders = async (filters: OrderFilters) => {
-  const { status, customerEmail, startDate, endDate, page = 1, limit = 10 } = filters;
+  const { 
+    status, 
+    paymentStatus,
+    customerEmail, 
+    startDate, 
+    endDate, 
+    page = 1, 
+    limit = 10,
+    sortBy = 'createdAt',
+    sortOrder = 'desc'
+  } = filters;
+  
   const skip = (page - 1) * limit;
 
   const where: any = {};
   
   if (status) where.status = status;
+  if (paymentStatus) where.paymentStatus = paymentStatus;
   if (customerEmail) where.customerEmail = customerEmail;
   
   if (startDate || endDate) {
@@ -64,13 +97,14 @@ export const getAllOrders = async (filters: OrderFilters) => {
       where,
       skip,
       take: limit,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { [sortBy]: sortOrder },
       include: {
         orderitems: {
           include: {
             product: true,
           },
         },
+        user: true,
       },
     }),
     prisma.order.count({ where }),
@@ -89,6 +123,8 @@ export const getOrderById = async (id: string) => {
           product: true,
         },
       },
+      user: true,
+      payments: true,
     },
   });
 };
@@ -103,21 +139,43 @@ export const getOrderByNumber = async (orderNumber: string) => {
           product: true,
         },
       },
+      user: true,
+      payments: true,
     },
   });
 };
 
 // UPDATE
 export const updateOrder = async (id: string, data: UpdateOrderInput) => {
+  // Recalculate finalAmount if any of the relevant fields are being updated
+  const updateData: any = { ...data };
+  
+  if (data.totalAmount !== undefined || data.discountAmount !== undefined || data.shippingAmount !== undefined) {
+    const currentOrder = await prisma.order.findUnique({
+      where: { id },
+      select: { totalAmount: true, discountAmount: true, shippingAmount: true },
+    });
+    
+    if (currentOrder) {
+      const totalAmount = data.totalAmount ?? currentOrder.totalAmount;
+      const discountAmount = data.discountAmount ?? currentOrder.discountAmount;
+      const shippingAmount = data.shippingAmount ?? currentOrder.shippingAmount;
+      
+      updateData.finalAmount = totalAmount + shippingAmount - discountAmount;
+    }
+  }
+  
   return await prisma.order.update({
     where: { id },
-    data,
+    data: updateData,
     include: {
       orderitems: {
         include: {
           product: true,
         },
       },
+      user: true,
+      payments: true,
     },
   });
 };

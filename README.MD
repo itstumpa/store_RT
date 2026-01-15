@@ -1,4 +1,83 @@
 
+## TO RUN THIS PROJECT
+1. npm i
+2. npm run dev
+3. npx prisma migrate dev --name init
+4. npx prisma generate
+5. npx prisma  studio
+6. 
+
+## IF YOU ADD SOMETHING
+1. npx prisma migrate dev --name create table
+
+
+## POST:
+
+## BRAND
+{
+"name": "M&G",
+"slug": "m-g",
+"description": "Well-known brand offering budget-friendly stationery products.",
+"country": "China"
+}
+
+## CATEGORIES
+{
+"name": "Gifts",
+"slug": "gifts",
+"parentId": null
+}
+
+## PRODUCT
+ {
+    "name": "Atomic Habits",
+    "slug": "atomic-habits",
+    "basePrice": 550,
+    "salePrice": 450,
+    "description": "A practical guide to building good habits and breaking bad ones.",
+    "isbn": "9780735211292",
+    "author": "James Clear",
+    "publisher": "Penguin Random House",
+    "edition": "1st",
+    "publicationYear": 2018,
+    "pages": 320,
+    "language": "English",
+    "status": "ACTIVE",
+    "isFeatured": true,
+    "isRecommended": true,
+    "isLatestEdition": true,
+    "weight": 350,
+    "dimensions": "20x15x3 cm",
+    "categoryId": "CATEGORY_ID_BOOKS",
+    "brandId": "BRAND_ID_PENGUIN"
+  }
+
+  ## ORDER
+
+  {
+  "userId": "USER_ID_2",
+  "orderNumber": "ORD-2026-002",
+  "customerName": "Arif Khan",
+  "customerEmail": "arif@example.com",
+  "customerPhone": "01898765432",
+  "shippingAddress": "Flat 8B, Green Road, Dhaka, Bangladesh",
+  "totalAmount": 800,
+  "discountAmount": 50,
+  "shippingAmount": 30,
+  "finalAmount": 780,
+  "status": "PENDING",
+  "paymentMethod": "BKASH",
+  "paymentStatus": "PENDING",
+  "notes": "Leave at the reception if not home",
+  "orderitems": [
+    {
+      "productId": "PRODUCT_ID_3",
+      "quantity": 1,
+      "unitPrice": 500,
+      "totalPrice": 500
+    }
+  ]
+}
 
 
 ```

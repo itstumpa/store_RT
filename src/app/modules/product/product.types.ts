@@ -1,31 +1,55 @@
 // src/modules/product/product.types.ts
 
+import { ProductStatus } from "@prisma/client";
+
 export interface CreateProductInput {
-  title: string;
-  slug?: string;
+  name: string;
+  slug: string;
+  author: string;
+  basePrice?: number;
+  salePrice?: number;
   description?: string;
-  price: number;
-  comparePrice?: number;
-  stock: number;
-  sku?: string;
-  brandId?: string;
-  categoryId?: string;
-  images?: string[];
+  isbn?: string;
+  publisher?: string;
+  edition?: string;
+  publicationYear?: number;
+  pages?: number;
+  language?: string;
+  status?: ProductStatus;
+  isRecommended?: boolean;
+  isLatestEdition?: boolean;
+  weight?: number;
+  dimensions?: string;
+  material?: string;
   isActive?: boolean;
+  isFeatured?: boolean;
+  categoryId: string;
+  brandId?: string;
 }
 
 export interface UpdateProductInput {
-  title?: string;
+  name?: string;
   slug?: string;
+  author?: string;
+  basePrice?: number;
+  salePrice?: number;
   description?: string;
-  price?: number;
-  comparePrice?: number;
-  stock?: number;
-  sku?: string;
-  brandId?: string;
-  categoryId?: string;
-  images?: string[];
+  isbn?: string;
+  publisher?: string;
+  edition?: string;
+  publicationYear?: number;
+  pages?: number;
+  language?: string;
+  status?: ProductStatus;
+  isRecommended?: boolean;
+  isLatestEdition?: boolean;
+  weight?: number;
+  dimensions?: string;
+  material?: string;
   isActive?: boolean;
+  isFeatured?: boolean;
+  categoryId?: string;
+  brandId?: string;
 }
 
 export interface ProductFilters {
@@ -35,8 +59,11 @@ export interface ProductFilters {
   minPrice?: number;
   maxPrice?: number;
   isActive?: boolean;
+  status?: ProductStatus;
+  isRecommended?: boolean;
+  isFeatured?: boolean;
   page?: number;
   limit?: number;
   sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
 }

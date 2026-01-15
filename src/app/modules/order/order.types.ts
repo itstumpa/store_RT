@@ -1,30 +1,57 @@
 // src/modules/order/order.types.ts
 
-export interface CreateOrderInput {
-  customerName: string;
-  customerEmail: string;
-  customerPhone: string;
-  shippingAddress: string;
-  totalAmount: number;
-  items: OrderItemInput[];
-}
+import { OrderStatus, PaymentStatus } from '@prisma/client';
 
 export interface OrderItemInput {
   productId: string;
   quantity: number;
   unitPrice: number;
+  totalPrice?: number; // Make it optional since it can be calculated
+}
+
+export interface CreateOrderInput {
+  userId?: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  shippingAddress: string;
+  totalAmount: number;
+  discountAmount?: number;
+  shippingAmount?: number;
+  status?: OrderStatus;
+  paymentMethod?: string;
+  paymentStatus?: PaymentStatus;
+  trackingNumber?: string;
+  notes?: string;
+  invoiceUrl?: string;
+  items?: OrderItemInput[]; // Support both
+  orderitems?: OrderItemInput[]; // Support both
 }
 
 export interface UpdateOrderInput {
-  status?: 'PENDING' | 'CONFIRMED' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
+  customerName?: string;
+  customerEmail?: string;
+  customerPhone?: string;
+  shippingAddress?: string;
+  totalAmount?: number;
+  discountAmount?: number;
+  shippingAmount?: number;
+  status?: OrderStatus;
+  paymentMethod?: string;
+  paymentStatus?: PaymentStatus;
   trackingNumber?: string;
+  notes?: string;
+  invoiceUrl?: string;
 }
 
 export interface OrderFilters {
-  status?: string;
+  status?: OrderStatus;
+  paymentStatus?: PaymentStatus;
   customerEmail?: string;
   startDate?: Date;
   endDate?: Date;
   page?: number;
   limit?: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
 }
