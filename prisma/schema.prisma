@@ -40,6 +40,22 @@ enum Role {
   
 }
 
+model Brand {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  description String?
+  logoUrl   String?   // optional logo image URL
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  products  Product[] // relation to Product table
+
+  @@map("brands")
+}
+
+
 model Category {
   id        String     @id @default(uuid())
   name      String
@@ -157,6 +173,7 @@ model Product {
   variants      ProductVariant[]
   order         OrderItem[]
   inventory     InventoryLog[]
+  brand         Brand[]
   
 
   @@index([status])

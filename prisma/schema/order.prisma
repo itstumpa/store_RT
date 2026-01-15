@@ -39,3 +39,4 @@ model OrderItem {
   @@unique([orderId, productId])
   @@map("order_items")
 }
+
