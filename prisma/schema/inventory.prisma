@@ -1,0 +1,22 @@
+model InventoryLog {
+  id          String   @id @default(uuid())
+  
+  type        InventoryLogType
+  quantity    Int      // Positive for addition, negative for reduction
+  previousStock Int
+  newStock    Int
+  reason      String?
+  reference   String?  // Order number, adjustment reference, etc.
+  
+  // Relations
+  productId      String
+  product        Product @relation(fields: [productId], references: [id])
+  
+  createdAt   DateTime @default(now())
+  isDeleted      Boolean  @default(false)
+  deletedAt      DateTime?
+  
+  @@index([productId])
+  @@index([type])
+  @@map("inventory_logs")
+}
