@@ -16,6 +16,13 @@ export const createCategory = async (data: CreateCategoryInput) => {
   }
 
   const slug = data.slug ?? generateSlug(data.name);
+const existing = await prisma.category.findUnique({
+  where: { slug },
+});
+
+if (existing) {
+  throw new Error('Category already exists');
+}
 
   return prisma.category.create({
     data: {
@@ -39,7 +46,6 @@ export const getAllCategories = async (filters: CategoryFilters) => {
   if (search) {
     where.OR = [
       { name: { contains: search, mode: 'insensitive' } },
-      { description: { contains: search, mode: 'insensitive' } },
     ];
   }
 
@@ -70,14 +76,18 @@ export const getCategoryById = async (id: string) => {
 
 // GET BY SLUG
 export const getCategoryBySlug = async (slug: string) => {
-  return await prisma.category.findUnique({
-    where: { slug },
+  return prisma.category.findFirst({
+    where: {
+      slug,
+      isDeleted: false,
+    },
     include: {
       parent: true,
       children: true,
     },
   });
 };
+
 
 // UPDATE
 export const updateCategory = async (id: string, data: UpdateCategoryInput) => {
