@@ -3,7 +3,7 @@
 export interface CreateCategoryInput {
   name: string;
   slug?: string;
-  description?: string;
+  // description?: string;
   parentId?: string;
   isActive?: boolean;
 }
@@ -11,7 +11,7 @@ export interface CreateCategoryInput {
 export interface UpdateCategoryInput {
   name?: string;
   slug?: string;
-  description?: string;
+  // description?: string;
   parentId?: string;
   isActive?: boolean;
 }

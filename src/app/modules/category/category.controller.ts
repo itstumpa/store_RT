@@ -2,18 +2,18 @@
 
 import { Request, Response } from 'express';
 import * as categoryService from './category.service';
-import { catchAsync, sendResponse } from '../../shared';
+import { catchAsync, sendResponse } from '../../shared/index';
 import { CreateCategoryInput, UpdateCategoryInput } from './category.types';
 
 // CREATE
 export const createCategory = catchAsync(async (req: Request, res: Response) => {
-  const category = await categoryService.createCategory(req.body as CreateCategoryInput);
-  
+  const result = await categoryService.createCategory(req.body);
+
   sendResponse(res, {
     statusCode: 201,
     success: true,
     message: 'Category created successfully',
-    data: category,
+    data: result,
   });
 });
 
@@ -100,11 +100,12 @@ export const updateCategory = catchAsync(async (req: Request, res: Response) => 
 // DELETE
 export const deleteCategory = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
+
   await categoryService.deleteCategory(id);
-  
+
   sendResponse(res, {
     statusCode: 200,
     success: true,
-    message: 'Category deleted successfully',
+    message: "Category deleted successfully",
   });
 });

@@ -1,28 +1,32 @@
 import { prisma } from "../../shared/prisma";
-
+import { generateSlug } from "../../helper/slugGenerator";
 import { CreateBrandInput, UpdateBrandInput, BrandFilters } from './brand.types';
 
 // Helper to generate slug
-const generateSlug = (name: string): string => {
-  return name
-    .toLowerCase()
-    .trim()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/[\s_-]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-};
 
 // CREATE
 export const createBrand = async (data: CreateBrandInput) => {
-  const slug = data.slug || generateSlug(data.name);
-  
-  return await prisma.brand.create({
+  if (!data) {
+    throw new Error("Brand data is required");
+  }
+
+  if (!data.name) {
+    throw new Error("Brand name is required");
+  }
+
+  const slug = data.slug ?? generateSlug(data.name);
+
+  return prisma.brand.create({
     data: {
-      ...data,
+      name: data.name,
       slug,
+      description: data.description,
+      country: data.country,
+      logoUrl: data.logo,
     },
   });
 };
+
 
 // GET ALL
 export const getAllBrands = async (filters: BrandFilters) => {
@@ -86,4 +90,14 @@ export const deleteBrand = async (id: string) => {
   return await prisma.brand.delete({
     where: { id },
   });
+};
+
+// deleteBrandPermanently
+export const deleteBrandPermanently = async (id: string) => {
+  const brand = await prisma.brand.findUnique({ where: { id } });
+  if (!brand) {
+    throw new Error("Brand not found or already deleted");
+  }
+
+  return prisma.brand.delete({ where: { id } });
 };

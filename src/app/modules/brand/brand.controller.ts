@@ -2,20 +2,22 @@
 
 import { Request, Response } from 'express';
 import * as brandService from './brand.service';
-import { catchAsync, sendResponse } from '../../shared';
+import { catchAsync, sendResponse } from '../../shared/index';
 import { CreateBrandInput, UpdateBrandInput } from './brand.types';
 
 // CREATE
 export const createBrand = catchAsync(async (req: Request, res: Response) => {
-  const brand = await brandService.createBrand(req.body as CreateBrandInput);
-  
+  const result = await brandService.createBrand(req.body);
+
   sendResponse(res, {
     statusCode: 201,
     success: true,
     message: 'Brand created successfully',
-    data: brand,
+    data: result,
   });
 });
+
+
 
 // GET ALL
 export const getAllBrands = catchAsync(async (req: Request, res: Response) => {

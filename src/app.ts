@@ -8,6 +8,9 @@ import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 import notFound from "./app/middlewares/notFound";
 
 const app: Application = express();
+// Parser
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // CORS
 app.use(
@@ -17,9 +20,6 @@ app.use(
   })
 );
 
-// Parser
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 // Health check route
 app.get("/", (req: Request, res: Response) => {
