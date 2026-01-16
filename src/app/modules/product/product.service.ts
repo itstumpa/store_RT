@@ -1,6 +1,7 @@
 // src/modules/product/product.service.ts
 
 import { prisma } from "../../shared/prisma";
+import { generateSlug } from "../../helper/slugGenerator";
 import {
   CreateProductInput,
   UpdateProductInput,
@@ -9,10 +10,16 @@ import {
 
 // CREATE
 export const createProduct = async (data: CreateProductInput) => {
+    if (!data) throw new Error("Product data is required");
+  if (!data.name) throw new Error("Product name is required");
+  if (!data.categoryId) throw new Error("Category ID is required");
+
+  const slug = data.slug ?? generateSlug(data.name);
+
   return await prisma.product.create({
     data: {
       name: data.name,
-      slug: data.slug,
+      slug,
       author: data.author,
       basePrice: data.basePrice,
       salePrice: data.salePrice,

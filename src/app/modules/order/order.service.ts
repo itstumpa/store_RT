@@ -12,18 +12,27 @@ const generateOrderNumber = (): string => {
 
 // CREATE
 export const createOrder = async (data: CreateOrderInput) => {
-  const orderNumber = generateOrderNumber();
+  // Ensure there are items
+  const orderItems = data.items || data.orderitems;
+  if (!orderItems || orderItems.length === 0) {
+    throw new Error('Order must have at least one item');
+  }
   
+    // Calculate totalAmount from items
+  const totalAmount = orderItems.reduce(
+    (sum, item) => sum + item.quantity * item.unitPrice,
+    0
+  );
   // Calculate final amount
   const finalAmount = data.totalAmount + (data.shippingAmount || 0) - (data.discountAmount || 0);
   
-  // Handle both 'items' and 'orderitems' for flexibility
-  const orderItems = data.items || data.orderitems;
   
   if (!orderItems || orderItems.length === 0) {
     throw new Error('Order must have at least one item');
   }
   
+  // Create order
+  const orderNumber = generateOrderNumber();
   const order = await prisma.order.create({
     data: {
       orderNumber,
@@ -31,13 +40,13 @@ export const createOrder = async (data: CreateOrderInput) => {
       customerEmail: data.customerEmail,
       customerPhone: data.customerPhone,
       shippingAddress: data.shippingAddress,
-      totalAmount: data.totalAmount,
+      totalAmount,
       discountAmount: data.discountAmount || 0,
       shippingAmount: data.shippingAmount || 0,
-      finalAmount: finalAmount,
-      status: data.status,
+      finalAmount,
+      status: data.status || 'PENDING',
       paymentMethod: data.paymentMethod,
-      paymentStatus: data.paymentStatus,
+      paymentStatus: data.paymentStatus || 'PENDING',
       trackingNumber: data.trackingNumber,
       notes: data.notes,
       invoiceUrl: data.invoiceUrl,
@@ -47,7 +56,7 @@ export const createOrder = async (data: CreateOrderInput) => {
           productId: item.productId,
           quantity: item.quantity,
           unitPrice: item.unitPrice,
-          totalPrice: item.totalPrice || (item.quantity * item.unitPrice),
+          totalPrice: item.quantity * item.unitPrice, // automatic calculation
         })),
       },
     },
@@ -60,7 +69,7 @@ export const createOrder = async (data: CreateOrderInput) => {
       user: true,
     },
   });
-  
+
   return order;
 };
 

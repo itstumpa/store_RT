@@ -5,6 +5,13 @@ import * as orderService from './order.service';
 import { catchAsync, sendResponse } from '../../shared';
 import { CreateOrderInput, UpdateOrderInput } from './order.types';
 
+export enum OrderStatus {
+  PENDING = "PENDING",
+  SHIPPED = "SHIPPED",
+  DELIVERED = "DELIVERED",
+  CANCELLED = "CANCELLED",
+}
+
 // CREATE
 export const createOrder = catchAsync(async (req: Request, res: Response) => {
   const order = await orderService.createOrder(req.body as CreateOrderInput);
@@ -21,14 +28,20 @@ export const createOrder = catchAsync(async (req: Request, res: Response) => {
 export const getAllOrders = catchAsync(async (req: Request, res: Response) => {
   const { status, customerEmail, startDate, endDate, page, limit } = req.query;
   
-  const result = await orderService.getAllOrders({
-    status: status as string,
-    customerEmail: customerEmail as string,
-    startDate: startDate ? new Date(startDate as string) : undefined,
-    endDate: endDate ? new Date(endDate as string) : undefined,
-    page: page ? Number(page) : 1,
-    limit: limit ? Number(limit) : 10,
-  });
+ let orderStatus: OrderStatus | undefined;
+if (status && Object.values(OrderStatus).includes(status as OrderStatus)) {
+  orderStatus = status as OrderStatus;
+}
+
+const result = await orderService.getAllOrders({
+  status: orderStatus,
+  customerEmail: customerEmail as string,
+  startDate: startDate ? new Date(startDate as string) : undefined,
+  endDate: endDate ? new Date(endDate as string) : undefined,
+  page: page ? Number(page) : 1,
+  limit: limit ? Number(limit) : 10,
+});
+
   
   sendResponse(res, {
     statusCode: 200,

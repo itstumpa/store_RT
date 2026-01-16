@@ -2,7 +2,7 @@
 
 import { Request, Response } from 'express';
 import * as productService from './product.service';
-import { catchAsync, sendResponse } from '../../shared';
+import { catchAsync, sendResponse } from '../../shared/index';
 import { CreateProductInput, UpdateProductInput } from './product.types';
 
 // CREATE
