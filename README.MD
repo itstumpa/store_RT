@@ -39,33 +39,40 @@ Child level:
 
 ## PRODUCT
  {
-    "name": "Atomic Habits",
-    "slug": "atomic-habits",
-    "basePrice": 550,
-    "salePrice": 450,
-    "description": "A practical guide to building good habits and breaking bad ones.",
-    "isbn": "9780735211292",
-    "author": "James Clear",
-    "publisher": "Penguin Random House",
-    "edition": "1st",
-    "publicationYear": 2018,
-    "pages": 320,
-    "language": "English",
-    "status": "ACTIVE",
-    "isFeatured": true,
-    "isRecommended": true,
-    "isLatestEdition": true,
-    "weight": 350,
-    "dimensions": "20x15x3 cm",
-    "categoryId": "CATEGORY_ID_BOOKS",
-    "brandId": "BRAND_ID_PENGUIN"
-  }
+  "name": "bed",
+  "slug": "bed",
+  "basePrice": 550,
+  "salePrice": 450,
+  "description": "A practical guide to building good habits and breaking bad ones.",
+  "isbn": "974480724267",
+  "author": "James Clear",
+  "publisher": "Penguin Random House",
+  "edition": "1st",
+  "publicationYear": 2018,
+  "pages": 320,
+  "language": "English",
+  "status": "ACTIVE",
+  "isFeatured": true,
+  "isRecommended": true,
+  "isLatestEdition": true,
+  "weight": 350,
+  "dimensions": "20x15x3 cm",
+  "categoryId": "9157be91-b32e-4d01-85b8-6257d3e784f3",
+  "brandId": "6f3e11f3-7e9c-46fd-9a3b-6e43b3b4d376",
+  "images": [
+    {"url": "https://example.com/images/notebook-front.jpg", "altText": "Front view"}
+  ],
+  "variants": [
+    {"price": 45, "sku": "NB-A5-BLUE4", "stock": 50}
+  ]
+}
+
 
   ## ORDER
 
-  {
-  "userId": "USER_ID_2",
-  "orderNumber": "ORD-2026-002",
+      {
+  "userId": "989f4f47-84aa-4ad1-b0e5-230e8e6a1082",
+  "orderNumber": "ORD-2026-003",
   "customerName": "Arif Khan",
   "customerEmail": "arif@example.com",
   "customerPhone": "01898765432",
@@ -80,12 +87,22 @@ Child level:
   "notes": "Leave at the reception if not home",
   "orderitems": [
     {
-      "productId": "PRODUCT_ID_3",
+      "productId": "7a93a10f-743e-4f4c-b5e3-8f487d803336",
       "quantity": 1,
       "unitPrice": 500,
       "totalPrice": 500
     }
+    ],
+
+    "images": [
+    {"url": "https://example.com/images/notebook-front.jpg", "altText": "Front view"}
+  ],
+
+  "variants": [
+    {"name": "Blue Cover", "price": 45, "sku": "NB-A5-BLUE", "stock": 50}
   ]
+
+  
 }
 
 

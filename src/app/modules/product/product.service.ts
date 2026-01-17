@@ -8,6 +8,9 @@ import {
   ProductFilters,
 } from "./product.types";
 
+
+
+
 // CREATE
 export const createProduct = async (data: CreateProductInput) => {
     if (!data) throw new Error("Product data is required");
@@ -17,6 +20,14 @@ export const createProduct = async (data: CreateProductInput) => {
   
 
   const slug = data.slug ?? generateSlug(data.name);
+
+  
+  // Nested create for variants with auto SKU generation
+  const variantsToCreate = (data.variants || []).map((v, index) => ({
+    price: v.price,
+    stock: v.stock,
+    sku: v.sku ?? `${slug.toUpperCase()}-${Date.now()}-${index + 1}`, // auto-generate if missing
+  }));
 
   return await prisma.product.create({
     data: {
@@ -53,12 +64,7 @@ export const createProduct = async (data: CreateProductInput) => {
 
       // Nested create for variants
       variants: {
-        create: (data.variants || []).map((v) => ({
-          // name: v.name,
-          price: v.price,
-          sku: v.sku,
-          stock: v.stock,
-        })),
+        create: variantsToCreate,
       },
     
     },
@@ -72,7 +78,10 @@ export const createProduct = async (data: CreateProductInput) => {
 };
 
 // GET ALL
-export const getAllProducts = async (filters: ProductFilters) => {
+export const getAllProducts = async (
+  filters: ProductFilters,
+  fullDetails: boolean = false // new flag to decide summary or full
+) => {
   const {
     search,
     brandId,
@@ -88,6 +97,7 @@ export const getAllProducts = async (filters: ProductFilters) => {
     sortBy = "createdAt",
     sortOrder = "desc",
   } = filters;
+  
 
   const skip = (page - 1) * limit;
 
@@ -129,22 +139,42 @@ export const getAllProducts = async (filters: ProductFilters) => {
   }
 
   const [products, total] = await Promise.all([
-    prisma.product.findMany({
-      where,
-      skip,
-      take: limit,
-      orderBy: { [sortBy]: sortOrder },
-      include: {
-        brand: true,
-        category: true,
-        images: true,
-        variants: true,
-      },
-    }),
-    prisma.product.count({ where }),
-  ]);
-
-  return { products, total, page, limit };
+  fullDetails
+    ? prisma.product.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { [sortBy]: sortOrder },
+        include: {
+          brand: true,
+          category: true,
+          images: true,
+          variants: true,
+        },
+      })
+    : prisma.product.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { [sortBy]: sortOrder },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          basePrice: true,
+          salePrice: true,
+          isFeatured: true,
+          images: {
+            where: { isMain: true },
+            select: { url: true },
+          },
+          brand: { select: { id: true, name: true } },
+          category: { select: { id: true, name: true } },
+        },
+      }),
+  prisma.product.count({ where }),
+]);
+return { products, total, page, limit };
 };
 
 // GET BY ID
@@ -159,6 +189,8 @@ export const getProductById = async (id: string) => {
     },
   });
 };
+
+
 
 // GET BY SLUG
 export const getProductBySlug = async (slug: string) => {
@@ -195,7 +227,7 @@ export const updateProduct = async (id: string, data: UpdateProductInput) => {
       ...(data.isLatestEdition !== undefined && { isLatestEdition: data.isLatestEdition }),
       ...(data.weight !== undefined && { weight: data.weight }),
       ...(data.dimensions !== undefined && { dimensions: data.dimensions }),
-      ...(data.material !== undefined && { material: data.material }),
+      ...(data.material !== null && { material: data.material }),
       ...(data.isActive !== undefined && { isActive: data.isActive }),
       ...(data.isFeatured !== undefined && { isFeatured: data.isFeatured }),
       ...(data.categoryId !== undefined && { categoryId: data.categoryId }),
