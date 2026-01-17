@@ -10,6 +10,7 @@ router.get('/', categoryController.getAllCategories);
 router.get('/:id', categoryController.getCategoryById);
 router.get('/slug/:slug', categoryController.getCategoryBySlug);
 router.put('/:id', categoryController.updateCategory);
+router.patch('/:id', categoryController.updateCategory);
 router.delete('/:id', categoryController.deleteCategory);
 
 // Frontend

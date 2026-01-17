@@ -10,6 +10,7 @@ router.get('/', brandController.getAllBrands);
 router.get('/:id', brandController.getBrandById);
 router.get('/slug/:slug', brandController.getBrandBySlug);
 router.put('/:id', brandController.updateBrand);
+router.patch('/:id', brandController.updateBrand);
 router.delete('/:id', brandController.deleteBrand);
 
 export default router;
