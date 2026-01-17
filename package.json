@@ -11,10 +11,7 @@
     "dev": "ts-node-dev --respawn --transpile-only ./src/server.ts",
     "postinstall": "prisma generate",
     "build": "tsc",
-    "start": "node dist/server.js",
-    "prisma:generate-schema": "node ./prisma/merge-schema.js",
-    "prisma:migrate": "npm run prisma:generate-schema && prisma migrate dev",
-    "prisma:generate": "npm run prisma:generate-schema && prisma generate"
+    "start": "node dist/server.js"
   },
   "keywords": [],
   "author": "",

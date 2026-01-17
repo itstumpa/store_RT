@@ -14,6 +14,8 @@ export const createProduct = async (data: CreateProductInput) => {
   if (!data.name) throw new Error("Product name is required");
   if (!data.categoryId) throw new Error("Category ID is required");
 
+  
+
   const slug = data.slug ?? generateSlug(data.name);
 
   return await prisma.product.create({
@@ -29,17 +31,36 @@ export const createProduct = async (data: CreateProductInput) => {
       edition: data.edition,
       publicationYear: data.publicationYear,
       pages: data.pages,
-      language: data.language,
+      language: data.language ?? "Bangla",
       status: data.status,
-      isRecommended: data.isRecommended,
-      isLatestEdition: data.isLatestEdition,
+      isRecommended: data.isRecommended ?? false,
+      isLatestEdition: data.isLatestEdition ?? false,
       weight: data.weight,
       dimensions: data.dimensions,
       material: data.material,
       isActive: data.isActive,
-      isFeatured: data.isFeatured,
+      isFeatured: data.isFeatured ?? false,
       categoryId: data.categoryId,
       brandId: data.brandId,
+
+      // Nested create for images
+      images: {
+        create: (data.images || []).map((img) => ({
+          url: img.url,
+          altText: img.altText,
+        })),
+      },
+
+      // Nested create for variants
+      variants: {
+        create: (data.variants || []).map((v) => ({
+          // name: v.name,
+          price: v.price,
+          sku: v.sku,
+          stock: v.stock,
+        })),
+      },
+    
     },
     include: {
       brand: true,

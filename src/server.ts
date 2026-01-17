@@ -19,9 +19,9 @@ async function bootstrap() {
       console.log(`   Brands: http://localhost:${config.port}/api/v1/brands`);
       console.log(`   Categories: http://localhost:${config.port}/api/v1/categories`);
       console.log(`   Products: http://localhost:${config.port}/api/v1/products`);
+      console.log(`   Products: http://localhost:${config.port}/api/v1/products?minPrice=950`);
       console.log(`   Orders: http://localhost:${config.port}/api/v1/orders\n`);
     });
-
     // Graceful shutdown handler
     const exitHandler = () => {
       if (server) {

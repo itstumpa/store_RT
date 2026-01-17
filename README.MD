@@ -22,11 +22,20 @@
 }
 
 ## CATEGORIES
+Top Level:
 {
 "name": "Gifts",
 "slug": "gifts",
 "parentId": null
 }
+
+Child level:
+{
+  "name": "Office Supplies",
+  "slug": "office-supplies",
+  "parentId": "a1b2c3-d4e5-f678-9012"
+}
+
 
 ## PRODUCT
  {
@@ -78,6 +87,7 @@
     }
   ]
 }
+
 
 
 ```

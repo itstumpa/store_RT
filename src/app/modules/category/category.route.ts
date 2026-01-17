@@ -12,4 +12,7 @@ router.get('/slug/:slug', categoryController.getCategoryBySlug);
 router.put('/:id', categoryController.updateCategory);
 router.delete('/:id', categoryController.deleteCategory);
 
+// Frontend
+// router.get('/tree',categoryController.getCategoryTree);
+
 export default router;

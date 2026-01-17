@@ -25,6 +25,11 @@ export interface CreateProductInput {
   isFeatured?: boolean;
   categoryId: string;
   brandId?: string;
+
+
+  // Relations
+  images?: ProductImageInput[];
+  variants?: ProductVariantInput[];
 }
 
 export interface UpdateProductInput {
@@ -50,6 +55,7 @@ export interface UpdateProductInput {
   isFeatured?: boolean;
   categoryId?: string;
   brandId?: string;
+  
 }
 
 export interface ProductFilters {
@@ -67,3 +73,18 @@ export interface ProductFilters {
   sortBy?: string;
   sortOrder?: "asc" | "desc";
 }
+
+export interface ProductImageInput {
+  url: string;
+  altText?: string;
+}
+
+export interface ProductVariantInput {
+  // name: string;
+  price: number;
+  sku: string;
+  stock: number;
+}
+
+
+

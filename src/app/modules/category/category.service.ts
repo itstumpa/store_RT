@@ -3,6 +3,7 @@
 import { prisma } from '../../shared/prisma';
 import { CreateCategoryInput, UpdateCategoryInput, CategoryFilters } from './category.types';
 import { generateSlug } from "../../helper/slugGenerator";
+import { buildCategoryTree } from '../../helper/categoriesTree';
 
 
 // CREATE
@@ -40,7 +41,7 @@ export const getAllCategories = async (filters: CategoryFilters) => {
   const skip = (page - 1) * limit;
 
   const where: any = {
-    isDeleted: false, // 👈 THIS IS THE FIX
+    isDeleted: false,
   };
 
   if (search) {
@@ -61,6 +62,17 @@ export const getAllCategories = async (filters: CategoryFilters) => {
 
   return { categories, total, page, limit };
 };
+
+// GET CATEGORY TREE (NO PAGINATION)
+export const getCategoryTree = async () => {
+  const categories = await prisma.category.findMany({
+    where: { isDeleted: false },
+    orderBy: { createdAt: 'asc' },
+  });
+
+  return buildCategoryTree(categories);
+};
+
 
 
 // GET BY ID

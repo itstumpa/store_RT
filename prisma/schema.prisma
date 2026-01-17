@@ -242,6 +242,7 @@ model ProductImage {
   id        String   @id @default(uuid())
   url       String
   isMain    Boolean  @default(false)
+  altText   String?
   productId String
   product   Product  @relation(fields: [productId], references: [id])
   createdAt DateTime @default(now())
@@ -249,6 +250,7 @@ model ProductImage {
 
 model ProductVariant {
   id        String   @id @default(uuid())
+  // name      String?
   sku       String   @unique
   price     Float
   stock     Int?
