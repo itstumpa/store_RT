@@ -1,5 +1,6 @@
-import { prisma } from "../../shared/prisma";
+
 import { generateSlug } from "../../helper/slugGenerator";
+import { prisma } from "../../shared/prisma";
 import { CreateBrandInput, UpdateBrandInput, BrandFilters } from './brand.types';
 
 // Helper to generate slug
@@ -14,7 +15,8 @@ export const createBrand = async (data: CreateBrandInput) => {
     throw new Error("Brand name is required");
   }
 
-  const slug = data.slug ?? generateSlug(data.name);
+  const slug = data.slug ?? await generateSlug(data.name, 'brand');
+
 
   return prisma.brand.create({
     data: {
@@ -76,7 +78,7 @@ export const getBrandBySlug = async (slug: string) => {
 // UPDATE
 export const updateBrand = async (id: string, data: UpdateBrandInput) => {
   if (data.name && !data.slug) {
-    data.slug = generateSlug(data.name);
+    data.slug = await generateSlug(data.name);
   }
   
   return await prisma.brand.update({

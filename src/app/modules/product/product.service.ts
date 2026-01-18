@@ -1,7 +1,8 @@
 // src/modules/product/product.service.ts
 
-import { generateUniqueSlug } from "../../helper/slugGenerator";
+import { generateSlug } from "../../helper/slugGenerator";
 import { prisma } from "../../shared/prisma";
+// import { generateSlug } from "../../helper/slugGenerator";
 import {
   CreateProductInput,
   UpdateProductInput,
@@ -19,7 +20,7 @@ export const createProduct = async (data: CreateProductInput) => {
 
   
 
-  const slug = data.slug ?? generateUniqueSlug(data.name);
+  const slug = data.slug ?? await generateSlug(data.name);
 
   
   // Nested create for variants with auto SKU generation

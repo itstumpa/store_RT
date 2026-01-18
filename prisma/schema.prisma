@@ -379,5 +379,12 @@ model User {
   orders        Order[]
   // stores       StoreUser[]
   // store         Store[]
+  platformRole PlatformRole?
+
+
+  isDeleted      Boolean  @default(false)
+  deletedAt      DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 

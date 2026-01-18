@@ -15,7 +15,7 @@ export const createCategory = async (data: CreateCategoryInput) => {
     throw new Error("Category name is required");
   }
 
-  const slug = data.slug ?? generateSlug(data.name);
+  const slug = data.slug ?? await generateSlug(data.name, 'category');
 const existing = await prisma.category.findUnique({
   where: { slug },
 });
@@ -93,7 +93,7 @@ export const getCategoryBySlug = async (slug: string) => {
 // UPDATE
 export const updateCategory = async (id: string, data: UpdateCategoryInput) => {
   if (data.name && !data.slug) {
-    data.slug = generateSlug(data.name);
+    data.slug = await generateSlug(data.name);
   }
   
   return await prisma.category.update({
