@@ -1,7 +1,7 @@
 // src/modules/product/product.service.ts
 
+import { generateUniqueSlug } from "../../helper/slugGenerator";
 import { prisma } from "../../shared/prisma";
-import { generateSlug } from "../../helper/slugGenerator";
 import {
   CreateProductInput,
   UpdateProductInput,
@@ -19,7 +19,7 @@ export const createProduct = async (data: CreateProductInput) => {
 
   
 
-  const slug = data.slug ?? generateSlug(data.name);
+  const slug = data.slug ?? generateUniqueSlug(data.name);
 
   
   // Nested create for variants with auto SKU generation
@@ -37,7 +37,6 @@ export const createProduct = async (data: CreateProductInput) => {
       basePrice: data.basePrice,
       salePrice: data.salePrice,
       description: data.description,
-      isbn: data.isbn,
       publisher: data.publisher,
       edition: data.edition,
       publicationYear: data.publicationYear,
@@ -68,6 +67,8 @@ export const createProduct = async (data: CreateProductInput) => {
       },
     
     },
+
+    // fixme 
     include: {
       brand: true,
       category: true,
@@ -110,7 +111,6 @@ export const getAllProducts = async (
       { name: { contains: search, mode: "insensitive" } },
       { description: { contains: search, mode: "insensitive" } },
       { author: { contains: search, mode: "insensitive" } },
-      { isbn: { contains: search, mode: "insensitive" } },
     ];
   }
 
@@ -209,6 +209,7 @@ export const getProductBySlug = async (slug: string) => {
 export const updateProduct = async (id: string, data: UpdateProductInput) => {
   return await prisma.product.update({
     where: { id },
+    // fixme 
     data: {
       ...(data.name !== undefined && { name: data.name }),
       ...(data.slug !== undefined && { slug: data.slug }),
@@ -216,7 +217,6 @@ export const updateProduct = async (id: string, data: UpdateProductInput) => {
       ...(data.basePrice !== undefined && { basePrice: data.basePrice }),
       ...(data.salePrice !== undefined && { salePrice: data.salePrice }),
       ...(data.description !== undefined && { description: data.description }),
-      ...(data.isbn !== undefined && { isbn: data.isbn }),
       ...(data.publisher !== undefined && { publisher: data.publisher }),
       ...(data.edition !== undefined && { edition: data.edition }),
       ...(data.publicationYear !== undefined && { publicationYear: data.publicationYear }),

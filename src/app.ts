@@ -6,11 +6,15 @@ import config from "./app/config";
 import router from "./app/routers";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 import notFound from "./app/middlewares/notFound";
+import passport from "./app/middlewares/passport";
+
+
 
 const app: Application = express();
 // Parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(passport.initialize());
 
 // CORS
 app.use(

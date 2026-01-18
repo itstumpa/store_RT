@@ -51,12 +51,82 @@ enum InventoryLogType {
   TRANSFER
 }
 
+// Global Role (Platform users)
 enum Role {
-  USER
-  ADMIN
+  SUPER_ADMIN
   VENDOR
+  CUSTOMER
+}
+
+// PlatformRole (Company employees)
+enum PlatformRole {
+  OWNER        // Founder / CEO
+  ADMIN        // Operations
+  SUPPORT      // Customer support
+  FINANCE      // Billing & payouts
+  DEVELOPER    // Internal tools
+}
+
+// StoreRole (Vendor-side employees)
+// enum StoreRole {
+//   OWNER
+//   ADMIN
+//   MANAGER
+//   EMPLOYEE
+// }
+
+enum StoreStatus {
+  ACTIVE
+  SUSPENDED
+  CLOSED
   
 }
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  action    String
+  entity    String
+  entityId  String
+  createdAt DateTime @default(now())
+}
+
+
+// model Store {
+//   id        String      @id @default(uuid())
+//   name      String
+//   slug      String      @unique
+
+//   ownerId  String @unique   // 1 STORE PER USER
+//   owner    User        @relation(fields: [ownerId], references: [id])
+//   status StoreStatus @default(ACTIVE)
+
+//   staff     StoreUser[]
+//   order   Order[]
+//   product   Product[]
+//   createdAt DateTime    @default(now())
+//   isDeleted Boolean @default(false)
+// deletedAt DateTime?
+
+// @@index([ownerId])
+// }
+
+// model StoreUser {
+//   id        String     @id @default(uuid())
+//   userId    String
+//   storeId   String?
+//   role      StoreRole
+//   createdAt DateTime   @default(now())
+
+//   user  User  @relation(fields: [userId], references: [id])
+//   store Store? @relation(fields: [storeId], references: [id])
+  
+
+//   @@unique([userId, storeId])
+//   @@index([storeId])
+// }
+
+
 
 model Brand {
   id        String    @id @default(uuid())
@@ -105,7 +175,9 @@ model InventoryLog {
   // Relations
   productId      String
   product        Product @relation(fields: [productId], references: [id])
-  productvariant  ProductVariant[]
+  productVariantId String?
+  productVariant   ProductVariant? @relation(fields: [productVariantId], references: [id])
+
   createdAt   DateTime @default(now())
   isDeleted      Boolean  @default(false)
   deletedAt      DateTime?
@@ -133,8 +205,10 @@ model Order {
   trackingNumber  String?
   notes           String?
   invoiceUrl      String?
-  paymentMethod String?
 paymentStatus PaymentStatus @default(PENDING)
+
+// storeId String?
+// store   Store? @relation(fields: [storeId], references: [id])
 payments Payment[]
 
 
@@ -144,6 +218,7 @@ payments Payment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  // @@index([storeId])
 }
 
 model OrderItem {
@@ -160,6 +235,7 @@ model OrderItem {
   createdAt   DateTime @default(now())
   
   @@unique([orderId, productId])
+  
   @@map("order_items")
 }
 
@@ -201,7 +277,6 @@ model Product {
   isActive      Boolean  @default(true)
   description   String?
 
-  isbn            String?  @unique
   author          String
   publisher       String?
   edition         String?
@@ -232,8 +307,13 @@ isFeatured Boolean          @default(false)
   order         OrderItem[]
   
   brand         Brand? @relation(fields: [brandId], references: [id])
-  
+  // storeId String?
+// store   Store? @relation(fields: [storeId], references: [id])
 
+// @@unique([storeId, slug])
+
+  
+// @@index([storeId])
   @@index([status])
   @@map("product_store")
 }
@@ -294,9 +374,13 @@ model User {
   name      String
   email     String   @unique
   password  String
-  role      Role     @default(USER)
+  role      Role     @default(CUSTOMER)
 
-  orders Order[]
+  orders        Order[]
+  // stores       StoreUser[]
+  // store         Store[]
+  platformRole PlatformRole?
+
 
   isDeleted      Boolean  @default(false)
   deletedAt      DateTime?

@@ -9,7 +9,6 @@ export interface CreateProductInput {
   basePrice?: number;
   salePrice?: number;
   description?: string;
-  isbn?: string;
   publisher?: string;
   edition?: string;
   publicationYear?: number;
@@ -39,7 +38,6 @@ export interface UpdateProductInput {
   basePrice?: number;
   salePrice?: number;
   description?: string;
-  isbn?: string;
   publisher?: string;
   edition?: string;
   publicationYear?: number;

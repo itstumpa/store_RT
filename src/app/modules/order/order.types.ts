@@ -19,7 +19,6 @@ export interface CreateOrderInput {
   discountAmount?: number;
   shippingAmount?: number;
   status?: OrderStatus;
-  paymentMethod?: string;
   paymentStatus?: PaymentStatus;
   trackingNumber?: string;
   notes?: string;
@@ -37,7 +36,6 @@ export interface UpdateOrderInput {
   discountAmount?: number;
   shippingAmount?: number;
   status?: OrderStatus;
-  paymentMethod?: string;
   paymentStatus?: PaymentStatus;
   trackingNumber?: string;
   notes?: string;

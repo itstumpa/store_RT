@@ -44,7 +44,6 @@ Child level:
   "basePrice": 550,
   "salePrice": 450,
   "description": "A practical guide to building good habits and breaking bad ones.",
-  "isbn": "974480724267",
   "author": "James Clear",
   "publisher": "Penguin Random House",
   "edition": "1st",
@@ -82,7 +81,6 @@ Child level:
   "shippingAmount": 30,
   "finalAmount": 780,
   "status": "PENDING",
-  "paymentMethod": "BKASH",
   "paymentStatus": "PENDING",
   "notes": "Leave at the reception if not home",
   "orderitems": [

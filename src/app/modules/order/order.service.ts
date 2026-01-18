@@ -45,7 +45,6 @@ export const createOrder = async (data: CreateOrderInput) => {
       shippingAmount: data.shippingAmount || 0,
       finalAmount,
       status: data.status || 'PENDING',
-      paymentMethod: data.paymentMethod,
       paymentStatus: data.paymentStatus || 'PENDING',
       trackingNumber: data.trackingNumber,
       notes: data.notes,
